@@ -1,8 +1,8 @@
-import direct/showbase
-import direct/task
-import direct/actor
-import direct/interval
-import panda3d/core
+import nimpanda3d/direct/showbase
+import nimpanda3d/direct/task
+import nimpanda3d/direct/actor
+import nimpanda3d/direct/interval
+import nimpanda3d/panda3d/core
 import std/math
 
 var base = ShowBase()
