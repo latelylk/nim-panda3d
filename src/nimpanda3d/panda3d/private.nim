@@ -1,16 +1,19 @@
 import std/time_t
 export time_t.Time
+import std/os # used for parentDir()
+
+# strdefine pragma allows to overwrite this with --define:pandaDir:{Path} as needed
+const pandaDir* {.strdefine.}: string = currentSourcePath().parentDir().parentDir().parentDir() / "built_panda"
 
 when defined(pandaDir):
-  const pandaDir* {.strdefine.}: string = ""
   when len(pandaDir) < 1:
     {.error: "pandaDir must not be an empty string when defined".}
 
 when defined(vcc):
   {.passC: "/DNOMINMAX".}
-
-  when defined(pandaDir):
-    {.passC: "/I\"" & pandaDir & "/include\"".}
+  
+  # when defined(pandaDir): # pandaDir is now a default, but can be overridden
+  {.passC: "/I\"" & pandaDir & "/include\"".}
 
 # For memcpy, Notify
 {.emit: """

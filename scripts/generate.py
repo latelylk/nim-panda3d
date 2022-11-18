@@ -3,12 +3,18 @@ __all__ = []
 import os, sys
 from distutils import sysconfig
 import pathlib
+# These imports still require p3d to be on the system path
 import panda3d, pandac
 from panda3d.interrogatedb import *
 
+src_dir = pathlib.Path(__file__).parent.parent / "src"
+built_panda_path = src_dir / "built_panda"
 
-panda_include_dir = os.path.join(os.path.dirname(os.path.dirname(pandac.__file__)), "include", "")
-
+# Might be good to add an arg here to swap between these
+# like pandaDir for the nim files
+#panda_include_dir = pathlib.Path(pandac.__file__).parent.parent / "include"
+panda_include_dir = built_panda_path / "include"
+output_dir = src_dir / "nimpanda3d/panda3d/"
 
 if 'interrogate_element_is_sequence' not in globals():
     def interrogate_element_is_sequence(element):
@@ -77,14 +83,10 @@ CORE_PREAMBLE = """
 import ./private
 
 when defined(vcc):
-  when defined(pandaDir):
-    {.passL: "\\"" & pandaDir & "/lib/libpandaexpress.lib\\"".}
-    {.passL: "\\"" & pandaDir & "/lib/libpanda.lib\\"".}
-    {.passL: "\\"" & pandaDir & "/lib/libp3dtoolconfig.lib\\"".}
-    {.passL: "\\"" & pandaDir & "/lib/libp3dtool.lib\\"".}
-  else:
-    {.passL: "libpandaexpress.lib libpanda.lib libp3dtoolconfig.lib libp3dtool.lib".}
-
+  {.passL: "\\"" & pandaDir & "/lib/" & "libpandaexpress.lib\\"".}
+  {.passL: "\\"" & pandaDir & "/lib/" & "libpanda.lib\\"".}
+  {.passL: "\\"" & pandaDir & "/lib/" & "libp3dtoolconfig.lib\\"".}
+  {.passL: "\\"" & pandaDir & "/lib/" & "libp3dtool.lib\\"".}
 else:
   {.passL: "-lpandaexpress -lpanda -lp3dtoolconfig -lp3dtool".}
 
@@ -400,10 +402,7 @@ import ./private
 import ./core
 
 when defined(vcc):
-  when defined(pandaDir):
-    {.passL: "\\"" & pandaDir & "/lib/lib%(libname)s.lib\\"".}
-  else:
-    {.passL: "lib%(libname)s.lib".}
+  {.passL: "\\"" & pandaDir & "/lib/" & "lib%(libname)s.lib\\"".}
 else:
   {.passL: "-l%(libname)s".}
 
@@ -1011,7 +1010,7 @@ def bind_function_overload(out, function, wrapper, func_name, proc_type="proc", 
 
             header = get_type_header(this_type)
             if header:
-                header_path = panda_include_dir + header
+                header_path = panda_include_dir / header
                 if not os.path.isfile(header_path):
                     print("Header not found: ", header)
                 else:
@@ -1661,7 +1660,7 @@ def bind_type(out, type, bound_templates={}):
 
             header = get_type_header(type)
             if header:
-                if not os.path.isfile(panda_include_dir + header):
+                if not os.path.isfile(panda_include_dir / header):
                     print("Header not found: ", header)
                 pragmas.append(f"header: \"{header}\"")
 
@@ -1744,7 +1743,7 @@ def bind_type(out, type, bound_templates={}):
 
         header = get_type_header(type)
         if header and not type_name.startswith("LVecBase") and not type_name.startswith("UnalignedLVecBase") and not type_name.startswith("LPoint") and not type_name.startswith("LVector"):
-            if not os.path.isfile(panda_include_dir + header):
+            if not os.path.isfile(panda_include_dir / header):
                 print("Header not found: ", header)
             pragmas.append(f"header: \"{header}\"")
 
@@ -1936,7 +1935,8 @@ if __name__ == "__main__":
     interrogate_add_search_directory(os.path.join(pandac, "input"))
 
     import panda3d.core
-    with open("panda3d/core.nim", "w") as fp:
+    core_nim_file = output_dir / "core.nim"
+    with open(core_nim_file, "w") as fp:
         fp.write(CORE_PREAMBLE)
         bind_module(fp, "panda3d.core")
         fp.write(CORE_POSTAMBLE)
@@ -1958,6 +1958,7 @@ if __name__ == "__main__":
 
             __import__("panda3d." + module_name)
 
-            with open("panda3d/" + module_name + ".nim", "w") as fp:
+            current_module_file = output_dir / (module_name + ".nim")
+            with open(current_module_file, "w") as fp:
                 fp.write(OTHER_PREAMBLE % dict(libname="p3" + module_name))
                 bind_module(fp, "panda3d." + module_name)

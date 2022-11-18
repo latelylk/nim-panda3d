@@ -1,14 +1,22 @@
 # Package
-version     = "0.0.1"
+version     = "0.0.2"
 author      = "RDB"
 description = "Proof of concept nim binding for Panda3D"
 license     = "N/A" # No license in repo rn. -- issue this
 srcdir      = "src"
-skipDirs    = @["samples", "tests"]
+skipDirs    = @["samples", "scripts", "tests"]
 
 # Dependencies
 requires "nim >= 1.6.8"
 
+# Install Panda3d bc... why else are you here?
+before install:
+  exec "nimble buildFromSrc"
+
 # Tests
-task test, "Runs the test file":
-  exec "nim cpp -r tests/test"
+task test, "Runs the basic test":
+  exec "nim cpp -r tests/pandasequence"
+
+# Scripts
+task buildFromSrc, "Builds panda3d from source":
+  exec "nim e scripts/build_p3d.nims"

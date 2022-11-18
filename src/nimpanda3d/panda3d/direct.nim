@@ -3,10 +3,7 @@ import ./private
 import ./core
 
 when defined(vcc):
-  when defined(pandaDir):
-    {.passL: "\"" & pandaDir & "/lib/libp3direct.lib\"".}
-  else:
-    {.passL: "libp3direct.lib".}
+  {.passL: "\"" & pandaDir & "/lib/" & "libp3direct.lib\"".}
 else:
   {.passL: "-lp3direct".}
 
