@@ -8,10 +8,10 @@
 # as implementing a fully rotatable camera.
 
 
-import direct/showbase
-import direct/task
-import direct/actor
-import panda3d/core
+import nimpanda3d/direct/showbase
+import nimpanda3d/direct/task
+import nimpanda3d/direct/actor
+import nimpanda3d/panda3d/core
 
 var base = ShowBase()
 base.openDefaultWindow()
