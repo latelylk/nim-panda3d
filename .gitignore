@@ -1,1 +1,4 @@
-/test
+/.github/
+/p3dSrc/
+/src/nimpanda3d/built_panda
+*.exe
