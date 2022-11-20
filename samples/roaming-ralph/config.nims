@@ -1,4 +1,4 @@
-switch("hints", "off")
+switch("hint", "[Name]:off") # Silence hints about variable case
 
 # This is just a conversion from the build.sh file
 switch("path", "../../src")
