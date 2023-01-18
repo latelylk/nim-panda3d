@@ -1,4 +1,4 @@
-import nimpanda3d/panda3d/core
+import nimpanda3d
 import nimpanda3d/direct/showbase
 import nimpanda3d/direct/task
 import nimpanda3d/direct/actor

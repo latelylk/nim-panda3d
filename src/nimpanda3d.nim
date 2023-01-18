@@ -1,1 +1,3 @@
-import nimpanda3d/panda3d/[core, direct]
+import nimpanda3d/panda3d/core
+
+export core

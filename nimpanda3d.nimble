@@ -9,9 +9,9 @@ skipDirs    = @["samples", "scripts", "tests"]
 # Dependencies
 requires "nim >= 1.6.8"
 
-# Install Panda3d bc... why else are you here?
-before install:
-  exec "nimble buildFromSrc"
+# If including panda in install
+#  before install:
+#    exec "nimble buildFromSrc"
 
 # Tests
 task test, "Runs the basic test":

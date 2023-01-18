@@ -1,3 +1,6 @@
+# Probably just going to save this for when building optimized panda for shipping or something?
+# Would be more useful to host binaries probably and pull them on nimble install
+
 # Intended to be run from nimble
 import std/[os, strformat]
 
