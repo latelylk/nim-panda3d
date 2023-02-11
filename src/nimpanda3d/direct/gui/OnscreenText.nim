@@ -367,7 +367,7 @@ func getFont(self: OnscreenText): TextFont =
 func clearText(self: OnscreenText) =
   get(self.textNode).clearText()
 
-func setText(self: OnscreenText, text: string) =
+func setText*(self: OnscreenText, text: string) =
   get(self.textNode).setText(text) #setWtext ?? # note: Reason: cannot convert from 'std::string' to 'const std::wstring'
 
 func appendText(self: OnscreenText, text: string) =

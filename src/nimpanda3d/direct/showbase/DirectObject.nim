@@ -1,7 +1,8 @@
 import ./Messenger
 import ./MessengerGlobal
 
-export Messenger.DirectObject
+export Messenger # send() and DirectObject
+export MessengerGlobal.messenger # Expose global messenger for send()
 
 proc accept*(this: DirectObject, event: string, function: proc ()) =
   messenger.accept(event, this, function)
