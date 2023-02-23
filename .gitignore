@@ -1,1 +1,6 @@
-/test
+# Task files
+.vscode/*
+
+# Debug
+*.ilk
+*.pdb

@@ -15,13 +15,13 @@
 # control and set the camera position.
 
 import nimpanda3d/direct/showbase
-import nimpanda3d/panda3d/core  # Contains most of Panda's modules
+import nimpanda3d/panda3d/core # Contains most of Panda's modules
 import nimpanda3d/direct/gui # Imports Gui objects we use for putting
 import std/options # Used for putting text on the screen
 
 # Define World object and variables we want to use in the scene
 type World = ref object of DirectObject
-    title: OnscreenText
+  title: OnscreenText
 
 # Initialize Panda and create a window
 var base = ShowBase()
@@ -29,36 +29,36 @@ base.openDefaultWindow() # open the viewing window
 
 # The initialization method for creating the World object
 proc newWorld: World =
-    var self = World() # Create a new World object and assign it to self
+  var self = World() # Create a new World object and assign it to self
 
     # Create some text overlayed on our screen.
     # We will use similar commands in all of our tutorials to create titles and
     # instruction guides.
-    self.title = newOnscreenText(text = "Panda3D: Tutorial 1 - Solar System",
-                                style = plain,
-                                pos = (-0.1, 0.1),
-                                scale = option[LVecBase2]((0.07, 0.07)),
-                                fg = option[LVecBase4]((1, 1, 1, 1)),
-                                align = ord(TextProperties.A_right),
-                                parent = option[NodePath](base.a2dBottomRight))
+  self.title = newOnscreenText(text = "Panda3D: Tutorial 1 - Solar System",
+                              style = plain,
+                              pos = (-0.1, 0.1),
+                              scale = option[LVecBase2]((0.07, 0.07)),
+                              fg = option[LVecBase4]((1, 1, 1, 1)),
+                              align = ord(TextProperties.A_right),
+                              parent = option[NodePath](base.a2dBottomRight))
 
-    # Make the background color black (R=0, G=0, B=0)
-    # instead of the default grey
-    base.setBackgroundColor(0, 0, 0)
+  # Make the background color black (R=0, G=0, B=0)
+  # instead of the default grey
+  base.setBackgroundColor(0, 0, 0)
 
-    # By default, the mouse controls the camera. Often, we disable that so that
-    # the camera can be placed manually (if we don't do this, our placement
-    # commands will be overridden by the mouse control)
-    base.disableMouse()
+  # By default, the mouse controls the camera. Often, we disable that so that
+  # the camera can be placed manually (if we don't do this, our placement
+  # commands will be overridden by the mouse control)
+  base.disableMouse()
 
-    # Set the camera position (x, y, z)
-    base.camera.setPos(0, 0, 45)
+  # Set the camera position (x, y, z)
+  base.camera.setPos(0, 0, 45)
 
-    # Set the camera orientation (heading, pitch, roll) in degrees
-    base.camera.setHpr(0, -90, 0)
+  # Set the camera orientation (heading, pitch, roll) in degrees
+  base.camera.setHpr(0, -90, 0)
 
-    # return our newly minted world
-    return self
+  # return our newly minted world
+  return self
 
 # Now that our procedure is defined, we can call it to create the World object
 let w = newWorld()
