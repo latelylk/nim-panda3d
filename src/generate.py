@@ -11,6 +11,9 @@ output_dir = src_dir / "nimpanda3d/panda3d/"
 
 panda_include_dir = pathlib.Path(pandac.__file__).parent.parent / "include"
 
+# Whether to spit out docstrings
+generateDocstrings = False
+
 if 'interrogate_element_is_sequence' not in globals():
     def interrogate_element_is_sequence(element):
         return False
@@ -912,10 +915,11 @@ def bind_coerce_constructor(out, function, wrapper, num_default_args=0):
         header = sorted(headers)[0]
         out.write(f" {{.importcpp: \"{cpp_expr}\", header: {header}.}}")
 
-    if interrogate_wrapper_has_comment(wrapper):
-        comment = translate_comment(interrogate_wrapper_comment(wrapper))
-        if comment:
-            out.write(" ## \\\n" + comment)
+    if generateDocstrings:
+        if interrogate_wrapper_has_comment(wrapper):
+            comment = translate_comment(interrogate_wrapper_comment(wrapper))
+            if comment:
+                out.write(" ## \\\n" + comment)
 
     out.write("\n\n")
 
@@ -1158,10 +1162,11 @@ def bind_function_overload(out, function, wrapper, func_name, proc_type="proc", 
     pragma_str = ", ".join(pragmas)
     out.write(f" {{.{pragma_str}.}}")
 
-    if interrogate_wrapper_has_comment(wrapper):
-        comment = translate_comment(interrogate_wrapper_comment(wrapper))
-        if comment:
-            out.write(" ## \\\n" + comment)
+    if generateDocstrings:
+        if interrogate_wrapper_has_comment(wrapper):
+            comment = translate_comment(interrogate_wrapper_comment(wrapper))
+            if comment:
+                out.write(" ## \\\n" + comment)
 
     out.write("\n\n")
     return True
@@ -1669,10 +1674,11 @@ def bind_type(out, type, bound_templates={}):
             pragma_str = ", ".join(pragmas)
             out.write(f"type {type_name_star} {{.{pragma_str}.}} = enum\n")
 
-            if interrogate_type_has_comment(type):
-                comment = translate_comment(interrogate_type_comment(type), '  ## ')
-                if comment:
-                    out.write(comment + "\n")
+            if generateDocstrings:
+                if interrogate_type_has_comment(type):
+                    comment = translate_comment(interrogate_type_comment(type), '  ## ')
+                    if comment:
+                        out.write(comment + "\n")
 
             values = {}
 
@@ -1717,10 +1723,11 @@ def bind_type(out, type, bound_templates={}):
             wrapped_type_name = translated_type_name(wrapped_type)
             out.write(f"type {type_name_star} = {wrapped_type_name}\n\n")
 
-            if interrogate_type_has_comment(type):
-                comment = translate_comment(interrogate_type_comment(type), '  ## ')
-                if comment:
-                    out.write("\n" + comment)
+            if generateDocstrings:
+                if interrogate_type_has_comment(type):
+                    comment = translate_comment(interrogate_type_comment(type), '  ## ')
+                    if comment:
+                        out.write("\n" + comment)
 
     else:
         pragmas = []
@@ -1777,10 +1784,11 @@ def bind_type(out, type, bound_templates={}):
             base_name = translated_type_name(base_type)
             out.write(f" of {base_name}")
 
-        if interrogate_type_has_comment(type):
-            comment = translate_comment(interrogate_type_comment(type), '  ## ')
-            if comment:
-                out.write("\n" + comment)
+        if generateDocstrings:
+            if interrogate_type_has_comment(type):
+                comment = translate_comment(interrogate_type_comment(type), '  ## ')
+                if comment:
+                    out.write("\n" + comment)
 
         if type_name.startswith("LVecBase") or type_name.startswith("UnalignedLVecBase"):
             if type_name[-1] == 'f':
