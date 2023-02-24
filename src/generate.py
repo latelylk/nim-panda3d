@@ -6,9 +6,10 @@ import pathlib
 import panda3d, pandac
 from panda3d.interrogatedb import *
 
+src_dir = pathlib.Path(__file__).parent.parent / "src"
+output_dir = src_dir / "nimpanda3d/panda3d/"
 
-panda_include_dir = os.path.join(os.path.dirname(os.path.dirname(pandac.__file__)), "include", "")
-
+panda_include_dir = pathlib.Path(pandac.__file__).parent.parent / "include"
 
 if 'interrogate_element_is_sequence' not in globals():
     def interrogate_element_is_sequence(element):
@@ -1011,7 +1012,7 @@ def bind_function_overload(out, function, wrapper, func_name, proc_type="proc", 
 
             header = get_type_header(this_type)
             if header:
-                header_path = panda_include_dir + header
+                header_path = panda_include_dir / header
                 if not os.path.isfile(header_path):
                     print("Header not found: ", header)
                 else:
@@ -1661,7 +1662,7 @@ def bind_type(out, type, bound_templates={}):
 
             header = get_type_header(type)
             if header:
-                if not os.path.isfile(panda_include_dir + header):
+                if not os.path.isfile(panda_include_dir / header):
                     print("Header not found: ", header)
                 pragmas.append(f"header: \"{header}\"")
 
@@ -1744,7 +1745,7 @@ def bind_type(out, type, bound_templates={}):
 
         header = get_type_header(type)
         if header and not type_name.startswith("LVecBase") and not type_name.startswith("UnalignedLVecBase") and not type_name.startswith("LPoint") and not type_name.startswith("LVector"):
-            if not os.path.isfile(panda_include_dir + header):
+            if not os.path.isfile(panda_include_dir / header):
                 print("Header not found: ", header)
             pragmas.append(f"header: \"{header}\"")
 
@@ -1884,12 +1885,11 @@ def iter_module_functions(module_name):
 
 def bind_module(out, module_name):
     print("Generating bindings for %s" % (module_name))
-
+    
     # Prevent conflicts between type names and properties
     ignore_properties_named = set(("respect_preV_transform",))
 
     bound_templates = set()
-
     for type in iter_module_types(module_name):
         ignore_properties_named.add(interrogate_type_name(type))
         bind_type(out, type, bound_templates)
@@ -1905,7 +1905,8 @@ def bind_module(out, module_name):
 
     for func in iter_module_functions(module_name):
         bind_function(out, func)
-
+    
+    toStrings = set()
     for type in iter_module_types(module_name):
         for i_mseq in range(interrogate_type_number_of_make_seqs(type)):
             bind_make_seq(out, type, interrogate_type_get_make_seq(type, i_mseq))
@@ -1921,12 +1922,28 @@ def bind_module(out, module_name):
                 out.write(f"\n")
 
             if get_type_output_method(type):
+                # Get the type name to add to toString
                 type_name = translated_type_name(type)
-                out.write(f"func `$`*(this: {type_name}): string {{.inline.}} =\n")
-                out.write(f"  var str : StringStream\n")
-                out.write(f"  this.output(str)\n")
-                out.write(f"  str.data\n")
-                out.write(f"\n")
+                toStrings.add(type_name)
+    
+    # if toStrings has types to write out
+    if (len(toStrings) > 0):
+        # Generate the types for toString
+        toStringsTypename = "SimpleStringTypes"
+        out.write(f"type {toStringsTypename} = ")
+        # Write out the first type without the 'or' in front
+        out.write(f"{toStrings.pop()}")
+        # Write out all but the first with 'or' in front
+        for type_name in toStrings:
+            out.write(f" or\n  {type_name}")
+        out.write(f"\n\n")
+
+        # Write the toString operator
+        out.write(f"func `$`*(this: {toStringsTypename}): string {{.inline.}} =\n")
+        out.write(f"  var str : StringStream\n")
+        out.write(f"  this.output(str)\n")
+        out.write(f"  str.data\n")
+        out.write(f"\n")
 
 
 if __name__ == "__main__":
@@ -1936,7 +1953,8 @@ if __name__ == "__main__":
     interrogate_add_search_directory(os.path.join(pandac, "input"))
 
     import panda3d.core
-    with open("panda3d/core.nim", "w") as fp:
+    core_nim_file = output_dir / "core.nim"
+    with open(core_nim_file, "w") as fp:
         fp.write(CORE_PREAMBLE)
         bind_module(fp, "panda3d.core")
         fp.write(CORE_POSTAMBLE)
@@ -1949,7 +1967,7 @@ if __name__ == "__main__":
         ext_suffix = ".pyd"
     else:
         ext_suffix = ".so"
-
+    
     for lib in os.listdir(os.path.dirname(panda3d.__file__)):
         if lib.endswith(ext_suffix) and not lib.startswith('core.'):
             module_name = lib[:-len(ext_suffix)]
@@ -1958,6 +1976,8 @@ if __name__ == "__main__":
 
             __import__("panda3d." + module_name)
 
-            with open("panda3d/" + module_name + ".nim", "w") as fp:
+            current_module_file = output_dir / (module_name + ".nim")
+            with open(current_module_file, "w") as fp:
                 fp.write(OTHER_PREAMBLE % dict(libname="p3" + module_name))
                 bind_module(fp, "panda3d." + module_name)
+    
